@@ -1,0 +1,39 @@
+# Create .gitignore in the root folder
+cat > .gitignore << 'EOL'
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.sln.docstates
+appsettings.Development.json
+
+## Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+## IDEs
+.vs/
+.vscode/settings.json
+.idea/
+
+## OS generated files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+## Docker
+.dockerignore
+
+## Logs
+logs/
+*.log
+EOL
