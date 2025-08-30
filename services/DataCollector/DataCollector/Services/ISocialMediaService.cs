@@ -4,7 +4,7 @@ namespace DataCollector.Services;
 
 public interface ISocialMediaService
 {
-Task<List<SocialPost>>GetRecentPostAsync(string platform);
+Task<List<SocialPost>>GetRecentPostsAsync(string platform);
 
 
 }

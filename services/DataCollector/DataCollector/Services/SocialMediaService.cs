@@ -1,6 +1,8 @@
 //for implementing interfaces services
 using DataCollector.Models;
-
+using DataCollector.Services;
+using Microsoft.Extensions.Caching.Memory; 
+using Newtonsoft.Json; 
 public class SocialMediaService : ISocialMediaService
 {
     private readonly HttpClient _httpClient; //for making API calls
@@ -23,7 +25,8 @@ public class SocialMediaService : ISocialMediaService
     {
         // Performance: Check cache first
         var cacheKey = $"posts-{platform}";
-        if (_cache.TryGetValue(cacheKey, out List<SocialPost> cached))
+        if (_cache.TryGetValue(cacheKey, out List<SocialPost>? cached) && cached != null)
+
         {
             return cached;
         }
@@ -64,7 +67,7 @@ public class SocialMediaService : ISocialMediaService
                 Content = post.Content?.Replace("<p>", "").Replace("</p>", "") ?? "",
                 Author = post.Account?.Username ?? "unknown",
                 Platform = "mastodon",
-                TimeStamp = post.CreatedAt,
+                Timestamp = post.CreatedAt,
                 LikeCount = post.FavouritesCount,
                 RetweetCount = post.ReblogsCount,
                 OriginalUrl = post.Url ?? string.Empty,
