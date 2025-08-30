@@ -3,7 +3,7 @@ using DataCollector.Services;
 
 namespace DataCollector.Services
 {
-    public class RedisService : IRedisServices  , IDisposable
+    public class RedisService : IRedisService  , IDisposable
     {
         private readonly IDatabase _database;
         private readonly ConnectionMultiplexer _connection;
@@ -38,7 +38,7 @@ namespace DataCollector.Services
                 }
 
                 // Performance: Use async publish
-                var subscribers = await _database.PublishAsync(channel, message);
+                var subscribers = await _database.PublishAsync(RedisChannel.Literal(channel), message);
                 _logger.LogDebug("Published to {Channel}, reached {Subscribers} subscribers", channel, subscribers);
             }
             catch (Exception ex)
