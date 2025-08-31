@@ -1,10 +1,10 @@
 namespace DataCollector.Models;
-using Newtonsoft.Json;
+using Newtonsoft.Json; // Allows JSON serialization/deserialization
 
 public class SocialPost
 {
     public string Id
-    { get; set; } = string.Empty;
+    { get; set; } = string.Empty; //default value to avoid null issues
 
     public string Content { get; set; } = string.Empty;
     public string Author { get; set; } = string.Empty;
@@ -23,6 +23,7 @@ public class MastodonApiPost
     {
         public string? Id { get; set; }
         public string? Content { get; set; }
+        //json property mapping
         [JsonProperty("created_at")]
         public DateTime CreatedAt { get; set; }
         public string? Url { get; set; }
@@ -44,6 +45,6 @@ public class MastodonApiPost
 
     public class MediaAttachment
     {
-        public string? Id { get; set; }
+        public string? Id { get; set; } //migt be empty or have value
         public string? Type { get; set; }
     }
