@@ -26,28 +26,25 @@ namespace DataCollector.Services
             _logger.LogInformation("Redis connection established to {ConnectionString}", connectionString);
         }
 
-        public async Task PublishAsync(string channel, string message)
+      public async Task PublishAsync(string channel, string message)
+{
+    try
+    {
+        var subscribers = await _database.PublishAsync(RedisChannel.Literal(channel), message);
+        _logger.LogInformation("Successfully published to {Channel}, reached {Subscribers} subscribers", 
+            channel, subscribers);
+        
+        if (subscribers == 0)
         {
-            try
-            {
-                // Security: Validate inputs
-                if (string.IsNullOrWhiteSpace(channel) || string.IsNullOrWhiteSpace(message))
-                {
-                    _logger.LogWarning("Invalid channel or message for publishing");
-                    return;
-                }
-
-                // Performance: Use async publish
-                var subscribers = await _database.PublishAsync(RedisChannel.Literal(channel), message);
-                _logger.LogDebug("Published to {Channel}, reached {Subscribers} subscribers", channel, subscribers);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to publish to Redis channel {Channel}", channel);
-                // Don't rethrow - let service continue running
-            }
+            _logger.LogWarning("Published to {Channel} but no subscribers received it", channel);
         }
-
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Failed to publish to {Channel}", channel);
+        throw;
+    }
+}
         public async Task<bool> IsConnectedAsync()
         {
             try
