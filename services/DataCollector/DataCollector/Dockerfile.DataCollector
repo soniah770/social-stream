@@ -1,0 +1,18 @@
+# Multi-stage build for .NET service
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Copy project files
+COPY ["DataCollector.csproj", "./"]
+RUN dotnet restore "DataCollector.csproj"
+
+# Copy entire project and build
+COPY . .
+RUN dotnet publish -c Release -o /app/publish
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+WORKDIR /app
+COPY --from=build /app/publish .
+EXPOSE 5000
+ENTRYPOINT ["dotnet", "DataCollector.dll"]
