@@ -1,0 +1,14 @@
+# Use official Redis Alpine image
+FROM redis:7-alpine
+
+# Optional: If you want to use a custom Redis configuration
+# COPY redis.conf /usr/local/etc/redis/redis.conf
+
+# Expose Redis default port
+EXPOSE 6379
+
+# Optional: Use custom entrypoint if needed
+# CMD ["redis-server", "/usr/local/etc/redis/redis.conf"]
+
+# Default command will use standard Redis configuration
+CMD ["redis-server"]

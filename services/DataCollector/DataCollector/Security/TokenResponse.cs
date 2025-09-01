@@ -1,3 +1,4 @@
+//representing the structure of an OAuth token response
 using Newtonsoft.Json;
 
 namespace DataCollector.Security

@@ -39,8 +39,11 @@ public class SocialMediaService : ISocialMediaService
         // Execute with rate limiting and authentication
         return await _rateLimitService.ExecuteWithRateLimitAsync(async () => 
         {
-            // Check cache first
-            var cacheKey = $"posts-{platform}";
+            // Check cache first 
+            var cacheKey = $"posts-{platform}"; // Create unique cache keyw
+
+                // TryGetValue: Attempts to retrieve cached value
+        // 'out' keyword: Returns value directly in method
             if (_cache.TryGetValue(cacheKey, out List<SocialPost>? cached) && cached != null)
             {
                 return cached;
@@ -49,8 +52,10 @@ public class SocialMediaService : ISocialMediaService
             try
             {
                 // Retrieve and set access token
-                var accessToken = await _authService.GetAccessTokenAsync();
-                _httpClient.DefaultRequestHeaders.Authorization = 
+                var accessToken = await _authService.GetAccessTokenAsync();  // Get token from authentication service
+
+                _httpClient.DefaultRequestHeaders.Authorization =          // Add token to HTTP request headers
+
                     new AuthenticationHeaderValue("Bearer", accessToken);
 
                 // Fetch and process posts
@@ -88,7 +93,7 @@ public class SocialMediaService : ISocialMediaService
     {
         return new SocialPost
         {
-            Id = post.Id ?? Guid.NewGuid().ToString(),
+            Id = post.Id ?? Guid.NewGuid().ToString(), //null-coalescing operator
             Content = post.Content?.Replace("<p>", "").Replace("</p>", "") ?? "",
             Author = post.Account?.Username ?? "unknown",
             Platform = "mastodon",

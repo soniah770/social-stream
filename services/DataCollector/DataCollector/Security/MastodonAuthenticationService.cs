@@ -9,7 +9,7 @@ namespace DataCollector.Security
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly ILogger<MastodonAuthenticationService> _logger;
-
+    // Constructor with dependency injection
         public MastodonAuthenticationService(
             HttpClient httpClient, 
             IConfiguration configuration,
@@ -23,7 +23,7 @@ namespace DataCollector.Security
         public async Task<string> GetAccessTokenAsync()
         {
             // Generate a simple development token
-            return await Task.FromResult(Guid.NewGuid().ToString());
+            return await Task.FromResult(Guid.NewGuid().ToString()); // Creates a task that's already completed and Generates a new unique identifier
         }
     }
 }

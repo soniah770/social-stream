@@ -30,10 +30,10 @@ namespace DataCollector.Services
 {
     try
     {
-        var subscribers = await _database.PublishAsync(RedisChannel.Literal(channel), message);
+        var subscribers = await _database.PublishAsync(RedisChannel.Literal(channel), message); //literal :Converts a string to a Redis channel name
         _logger.LogInformation("Successfully published to {Channel}, reached {Subscribers} subscribers", 
             channel, subscribers);
-        
+         // Checks if no subscribers received the message
         if (subscribers == 0)
         {
             _logger.LogWarning("Published to {Channel} but no subscribers received it", channel);

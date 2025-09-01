@@ -32,3 +32,39 @@ Real-time social media streaming platform built with microservices architecture.
 - **Containerization**: Docker and Docker Compose
 - **Service Discovery**: Docker internal networking
 - **Data Storage**: Redis for caching and messaging
+
+// DATA FLOW DIAGRAM 
+// ===================================================================
+
+/*
+┌─────────────────┐    HTTP GET     ┌──────────────────┐
+│   React Client  │ ───────────────→ │ PostsController  │
+│  (Frontend)     │                  │  GetRecentPosts  │
+└─────────────────┘                  └──────────────────┘
+         │                                     │
+         │ WebSocket                          │ Thread-Safe Read
+         │ Connection                         ▼
+         │                          ┌──────────────────┐
+         ▼                          │  Static Memory   │
+┌─────────────────┐                 │   _recentPosts   │ ◄─────┐
+│    PostHub      │                 └──────────────────┘       │
+│  (SignalR)      │                          ▲                 │ Thread-Safe Write
+└─────────────────┘                          │ AddPost()       │
+         ▲                                   │                 │
+         │ Real-time Broadcast              │                 │
+         │                          ┌──────────────────┐       │
+┌─────────────────┐                 │ PostStreamService│       │
+│PostStreamService│ ◄──────────────►│   Redis Sub      │───────┘
+│   Background    │   Redis Msg     └──────────────────┘
+│   Worker        │                          ▲
+└─────────────────┘                          │
+                                   ┌──────────────────┐
+                                   │  Redis Channel   │
+                                   │ "processed-posts"│
+                                   └──────────────────┘
+                                            ▲
+                                   ┌──────────────────┐
+                                   │ DataProcessor    │
+                                   │   Service        │
+                                   └──────────────────┘
+*/

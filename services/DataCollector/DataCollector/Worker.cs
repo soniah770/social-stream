@@ -3,12 +3,12 @@ using DataCollector.Models;
 using DataCollector.Services;
 using Newtonsoft.Json;
 
-public class Worker : BackgroundService
+public class Worker : BackgroundService //Continuous background processing
 {
     private readonly ILogger<Worker> _logger;
     private readonly ISocialMediaService _socialMediaService;
     private readonly IRedisService _redisService;
-    private readonly IConfiguration _configuration;
+    private readonly IConfiguration _configuration; //Reads application configuration
 
     public Worker(ILogger<Worker> logger, ISocialMediaService socialMediaService,
             IRedisService redisService, IConfiguration configuration)
@@ -19,16 +19,17 @@ public class Worker : BackgroundService
         _configuration = configuration;
     }
 
+    //polymorphism - overriding base class method
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("DataCollector Worker started");
-
+            // Runs continuously until service stops
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
                 await CollectAndPublishPosts();
-                
+
                 var delayMinutes = _configuration.GetValue<int>("CollectionIntervalMinutes", 1);
                 _logger.LogInformation("Waiting {DelayMinutes} minutes before next collection", delayMinutes);
                 await Task.Delay(TimeSpan.FromMinutes(delayMinutes), stoppingToken);
@@ -47,6 +48,8 @@ public class Worker : BackgroundService
 
     private async Task CollectAndPublishPosts()
 {
+        // Fetch posts from social media service
+
     var posts = await _socialMediaService.GetRecentPostsAsync("mastodon");
     _logger.LogInformation("Collected {Count} posts from Mastodon", posts.Count);
     

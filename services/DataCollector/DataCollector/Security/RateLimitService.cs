@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Configuration;
-
+//Controls concurrent requests
 namespace DataCollector.Security
 {
     public class RateLimitService
@@ -11,18 +11,23 @@ namespace DataCollector.Security
             IConfiguration configuration, 
             ILogger<RateLimitService> logger)
         {
+            // read maximum concurrent requests from configuration
             var maxConcurrentRequests = configuration.GetValue("Mastodon:MaxConcurrentRequests", 5);
-            _rateLimitSemaphore = new SemaphoreSlim(maxConcurrentRequests);
+            _rateLimitSemaphore = new SemaphoreSlim(maxConcurrentRequests); //Controls how many simultaneous operations can occur
             _logger = logger;
         }
-
+   //Generic Method
         public async Task<T> ExecuteWithRateLimitAsync<T>(Func<Task<T>> apiCall)
         {
             await _rateLimitSemaphore.WaitAsync();
             
             try
             {
+                    // Log start of API call
+
                 _logger.LogInformation("API call initiated");
+                    // Execute the passed API call
+
                 return await apiCall();
             }
             catch (Exception ex)
@@ -32,6 +37,8 @@ namespace DataCollector.Security
             }
             finally
             {
+                    // Always release the semaphore slot
+
                 _rateLimitSemaphore.Release();
             }
         }

@@ -47,7 +47,8 @@ public class ProcessorWorker : BackgroundService
     private async Task ProcessMessage(string jsonMessage)
     {
         try
-        {
+        {    // 1. Deserialize raw posts
+
             var rawPosts = JsonConvert.DeserializeObject<List<RawPost>>(jsonMessage);
             
             if (rawPosts == null || !rawPosts.Any())
@@ -55,8 +56,11 @@ public class ProcessorWorker : BackgroundService
                 _logger.LogWarning("Received empty or null message");
                 return;
             }
+        // 2. Process posts in batch
 
             var processedPosts = await _processor.ProcessPostsBatchAsync(rawPosts);
+                // 3. Filter spam posts
+
             var validPosts = processedPosts.Where(p => !p.IsSpam).ToList();
             
             if (validPosts.Any())
