@@ -1,41 +1,53 @@
+using ApiGateway.Hubs;
+using ApiGateway.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// Add services
+builder.Services.AddControllers();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IPostStreamService, PostStreamService>(); //Creates single instance for entire application lifetime
+
+builder.Services.AddHostedService<PostStreamBackgroundService>();
+
+// Add CORS
+builder.Services.AddCors(options => 
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")  //access to domain  
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();  // Needed for SignalR
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+// Use CORS before other middleware
+app.UseCors("AllowFrontend");
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.UseRouting();
+app.MapControllers();
+app.MapHub<PostHub>("/postHub");
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+// Background service class
+public class PostStreamBackgroundService : BackgroundService
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    private readonly IPostStreamService _streamService;
+    
+    //Allows easy swapping of service implementations
+
+    public PostStreamBackgroundService(IPostStreamService streamService)
+    {
+        _streamService = streamService;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        await _streamService.StartListeningAsync(stoppingToken); //Starts the background service
+        //Starts listening to Redis channel
+    }
 }

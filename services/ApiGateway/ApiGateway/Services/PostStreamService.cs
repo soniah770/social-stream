@@ -47,9 +47,9 @@ namespace ApiGateway.Services
                         {
                             await _hubContext.Clients.Group("PostStream") // Allows sending messages to clients
 
-                                .SendAsync("NewPosts", posts, cancellationToken);
+                                .SendAsync("NewPosts", posts, cancellationToken); //"NewPosts" is the method name clients will receive
 
-                            _logger.LogDebug("Broadcasted {Count} posts to PostStream group", posts.Count);
+                            _logger.LogDebug("Broadcasted {Count} posts to PostStream group", posts.Count); //Helps track application activity
                         }
                     }
                     catch (Exception ex)
@@ -62,7 +62,8 @@ namespace ApiGateway.Services
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(1000, cancellationToken);
+                await Task.Delay(1000, cancellationToken); //Resource management pause 
+
             }
         }
 
